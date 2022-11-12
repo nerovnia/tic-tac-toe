@@ -34,34 +34,34 @@ let activePlayer = player1;
 console.log(player2);
 
 const allCellsOperations = (action) => {
-  for(let c = 0; c < gamePlaceSize; c++) {
-    for(let r = 0; r < gamePlaceSize; r++) {
-      action(c, r);
+  for(let col = 0; col < gamePlaceSize; col++) {
+    for(let row = 0; row < gamePlaceSize; row++) {
+      action(col, row);
     }
   }
 }
 
-const gamePlaceInit = (c, r) => {
-  if(r === 0) gameplace[c] = [];
-  gameplace[c].push(0);
+const gamePlaceInit = (col, row) => {
+  if(row === 0) gameplace[col] = [];
+  gameplace[col].push(0);
 }
 
-const gamePlaceShow = (c, r) => {
-  console.log(gameplace[c][r]);
+const gamePlaceShow = (col, row) => {
+  console.log(gameplace[col][row]);
 }
 
 const checkColumn = (col, player) => {
   let sum = 0;
-  for(let i = 0; i < gamePlaceSize; i++) {
-    if(gameplace[col][i] === player) sum++;
+  for(let row = 0; row < gamePlaceSize; row++) {
+    if(gameplace[col][row] === player) sum++;
   }
   return sum === gamePlaceSize;
 }
 
 const checkRow = (row, player) => {
   let sum = 0;
-  for(let i = 0; i < gamePlaceSize; i++) {
-    if(gameplace[i][row] === player) sum++;
+  for(let col = 0; col < gamePlaceSize; col++) {
+    if(gameplace[col][row] === player) sum++;
   }
   return sum === gamePlaceSize;
 }
@@ -83,11 +83,36 @@ const checkRightDiagonal = (player) => {
   return sum === gamePlaceSize;
 }
 
-const setSign = (player) => {
+const checkCombination = (col, row, player) => {
+  if(col === row) {
+    checkLeftDiagonal(player);
+  }
+  if (((col === 2)&&(row === 0))||((col === 0)&&(row === 2))||((col === 1)&&(row === 1))) {
+    checkRightDiagonal(player);
+  }
+  checkColumn(col, player);
+  checkRow(col, player);
+}
 
+const setSign = (col, row, player) => {
+  gameplace[col][row] = player;
+  if(checkCombination(col, row, player))
+    console.log(`Player with id ${activePlayer.id} are win!`);
+  else  
+    changeActivePlayer();
+}
+
+const changeActivePlayer = () => {
+  (activePlayer === player1) ? activePlayer = player2 : activePlayer = player1;
 }
 
 allCellsOperations(gamePlaceInit);
 //allCellsOperations(gamePlaceShow);
+//allCellsOperations(gamePlaceShow);
 
-console.log(gameplace);
+console.dir(gameplace);
+console.dir(activePlayer);
+setSign(0,2,activePlayer.sign);
+console.dir(gameplace);
+console.dir(activePlayer);
+
