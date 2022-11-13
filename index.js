@@ -1,5 +1,6 @@
 const gamePlaceSize = 3;
 const gameplace = new Array(3);
+const maxSteps = 9;
 
 class Player {
   static _id = 0;
@@ -30,8 +31,7 @@ const player1 = new Player(0);
 const player2 = new Player(0);
 
 let activePlayer = player1;
-
-console.log(player2);
+let currentStep = 1;
 
 const allCellsOperations = (action) => {
   for(let col = 0; col < gamePlaceSize; col++) {
@@ -85,21 +85,29 @@ const checkRightDiagonal = (player) => {
 
 const checkCombination = (col, row, player) => {
   if(col === row) {
-    checkLeftDiagonal(player);
+    if (checkLeftDiagonal(player)) return true;
   }
   if (((col === 2)&&(row === 0))||((col === 0)&&(row === 2))||((col === 1)&&(row === 1))) {
-    checkRightDiagonal(player);
+    if(checkRightDiagonal(player)) return true;
   }
-  checkColumn(col, player);
-  checkRow(col, player);
+  if(checkColumn(col, player)) return true;
+  if(checkRow(row, player)) return true;
+  return false;
 }
 
 const setSign = (col, row, player) => {
+  if(gameplace[col][row] !== 0) return;
   gameplace[col][row] = player;
-  if(checkCombination(col, row, player))
+  if(checkCombination(col, row, player)) {
     console.log(`Player with id ${activePlayer.id} are win!`);
-  else  
-    changeActivePlayer();
+    return;
+  }
+  if(currentStep === maxSteps) {
+    console.log(`It's a dead heat. Game over!`);
+    return;
+  } 
+  changeActivePlayer();
+  currentStep++;
 }
 
 const changeActivePlayer = () => {
@@ -109,10 +117,38 @@ const changeActivePlayer = () => {
 allCellsOperations(gamePlaceInit);
 //allCellsOperations(gamePlaceShow);
 //allCellsOperations(gamePlaceShow);
-
+/*
 console.dir(gameplace);
 console.dir(activePlayer);
 setSign(0,2,activePlayer.sign);
 console.dir(gameplace);
 console.dir(activePlayer);
 
+setSign(0,2,activePlayer.sign);
+console.dir(gameplace);
+console.dir(activePlayer);
+
+setSign(1,2,activePlayer.sign);
+console.dir(gameplace);
+console.dir(activePlayer);
+
+setSign(1,0,activePlayer.sign);
+console.dir(gameplace);
+console.dir(activePlayer);
+console.log(currentStep);
+*/
+
+setSign(0,0,activePlayer.sign);
+console.log(currentStep);
+setSign(1,1,activePlayer.sign);
+console.log(currentStep);
+setSign(1,0,activePlayer.sign);
+console.log(currentStep);
+setSign(1,2,activePlayer.sign);
+console.log(currentStep);
+setSign(2,0,activePlayer.sign);
+console.log(currentStep);
+setSign(1,3,activePlayer.sign);
+console.log(currentStep);
+setSign(1,0,activePlayer.sign);
+console.log(currentStep);
