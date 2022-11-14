@@ -4,10 +4,12 @@ const maxSteps = 9;
 
 class Player {
   static _id = 0;
-  constructor (type) {
+  constructor (type, visualSign, colorClass) {
     this._id = ++Player._id;
     this._type = type;
     this._sign = Player._id;
+    this._visualSign = visualSign;
+    this._colorClass = colorClass;
   }
 
   get type() {
@@ -22,13 +24,21 @@ class Player {
     return this._sign;
   }
 
+  get visualSign() {
+    return this._visualSign;
+  }
+
+  get colorClass() {
+    return this._colorClass;
+  }
+
 }
 
 // Player types
 // 0 - computer
 // 1 - human
-const player1 = new Player(0);
-const player2 = new Player(0);
+const player1 = new Player(0, 'X', 'colorPlayer1');
+const player2 = new Player(0, 'O', 'colorPlayer2');
 
 let activePlayer = player1;
 let currentStep = 1;
@@ -80,6 +90,7 @@ const checkRightDiagonal = (player) => {
   for(let i = 0; i < gamePlaceSize; i++) {
     if(gameplace[--col][i] === player) sum++;
   }
+  //console.log(`right diagonal ${sum === gamePlaceSize}`)
   return sum === gamePlaceSize;
 }
 
@@ -87,7 +98,7 @@ const checkCombination = (col, row, player) => {
   if(col === row) {
     if (checkLeftDiagonal(player)) return true;
   }
-  if (((col === 2)&&(row === 0))||((col === 0)&&(row === 2))||((col === 1)&&(row === 1))) {
+  if (((col === 2) && (row === 0)) || ((col === 0) && (row === 2)) || ((col === 1) && (row === 1))) {
     if(checkRightDiagonal(player)) return true;
   }
   if(checkColumn(col, player)) return true;
@@ -95,60 +106,6 @@ const checkCombination = (col, row, player) => {
   return false;
 }
 
-const setSign = (col, row, player) => {
-  if(gameplace[col][row] !== 0) return;
-  gameplace[col][row] = player;
-  if(checkCombination(col, row, player)) {
-    console.log(`Player with id ${activePlayer.id} are win!`);
-    return;
-  }
-  if(currentStep === maxSteps) {
-    console.log(`It's a dead heat. Game over!`);
-    return;
-  } 
-  changeActivePlayer();
-  currentStep++;
-}
-
 const changeActivePlayer = () => {
   (activePlayer === player1) ? activePlayer = player2 : activePlayer = player1;
 }
-
-allCellsOperations(gamePlaceInit);
-//allCellsOperations(gamePlaceShow);
-//allCellsOperations(gamePlaceShow);
-/*
-console.dir(gameplace);
-console.dir(activePlayer);
-setSign(0,2,activePlayer.sign);
-console.dir(gameplace);
-console.dir(activePlayer);
-
-setSign(0,2,activePlayer.sign);
-console.dir(gameplace);
-console.dir(activePlayer);
-
-setSign(1,2,activePlayer.sign);
-console.dir(gameplace);
-console.dir(activePlayer);
-
-setSign(1,0,activePlayer.sign);
-console.dir(gameplace);
-console.dir(activePlayer);
-console.log(currentStep);
-*/
-
-setSign(0,0,activePlayer.sign);
-console.log(currentStep);
-setSign(1,1,activePlayer.sign);
-console.log(currentStep);
-setSign(1,0,activePlayer.sign);
-console.log(currentStep);
-setSign(1,2,activePlayer.sign);
-console.log(currentStep);
-setSign(2,0,activePlayer.sign);
-console.log(currentStep);
-setSign(1,3,activePlayer.sign);
-console.log(currentStep);
-setSign(1,0,activePlayer.sign);
-console.log(currentStep);
