@@ -14,7 +14,7 @@ class Player {
   }
 
   get name() {
-    return this.name;
+    return this._name;
   }
 
   get id() {
@@ -47,8 +47,8 @@ class GamePlace {
     this._colorPlayer1Class = 'colorPlayer1';
     this._colorPlayer2Class = 'colorPlayer2';
 
-    this._player1 = new Player(player1.type, 'Player1', player1.sign, player1.color);
-    this._player2 = new Player(player2.type, 'Player2', player2.sign, player2.color);
+    this._player1 = new Player(player1.type, player1.name, player1.sign, player1.color);
+    this._player2 = new Player(player2.type, player2.name, player2.sign, player2.color);
 
     this._activePlayer = (player1.active) ? this._player1 : this._player2;
 
@@ -122,19 +122,13 @@ class GamePlace {
 
   cellClick = (event) => {
     const target = event.target;
-    let col = 0;
-    let row = 0;
-  
-    {
-      const t_arr = target.id.split('-');
-      col = Number.parseInt(t_arr[1]);
-      row = Number.parseInt(t_arr[2]);
-    }
+
+    let [, col, row] = [...target.id.split('-')];
 
     if((col === undefined) || (!row === undefined) || (this._gameplace[col][row] !== 0)) return;
     this.paintSign(col, row, target);
     if(this.checkCombination(col, row, this._activePlayer.sign))  {
-      console.log(`Player with id ${this._activePlayer.id} are win!`);
+      console.log(`${this._activePlayer.name} win!`);
       this.offGameplaceListener();
       return;
     }
@@ -162,31 +156,17 @@ const gamePlace = new GamePlace('#gameplace',
   {
     type: 0,
     sign: 'X',
+    name: 'Player 1',
     color: 'colorPlayer1',
     active: true
   },
   {
     type: 0,
     sign: 'O',
+    name: 'Player 2',
     color: 'colorPlayer2'
   }
 );
 
-
-// Player types
-// 0 - computer
-// 1 - human
-//const player1 = new Player(0, 'X', 'colorPlayer1');
-//const player2 = new Player(0, 'O', 'colorPlayer2');
-
-//let activePlayer = player1;
-//let currentStep = 1;
-
-
-/*
-const gamePlaceShow = (col, row) => {
-  console.log(gameplace[col][row]);
-}
-*/
 
 
