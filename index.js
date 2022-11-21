@@ -150,7 +150,6 @@ class GamePlace {
         checkedResult.addUnselectedCell([col, row]);
       }
     }
-    //return sum;
   }
 
   checkRow(row, player, checkedResult) {
@@ -163,7 +162,6 @@ class GamePlace {
         checkedResult.addUnselectedCell([col, row]);
       }
     }
-    //return sum;
   }
 
   checkLeftDiagonal(player, checkedResult) {
@@ -176,7 +174,6 @@ class GamePlace {
         checkedResult.addUnselectedCell([i, i]);
       }
     }
-    //return sum;
   }
 
   checkRightDiagonal(player, checkedResult) {
@@ -190,31 +187,8 @@ class GamePlace {
         checkedResult.addUnselectedCell([col, i]);
       }
     }
-    //return sum;
   }
-/*
-  checkCombination(col, row, maxSelectedCells, player) {
-    const formatCombinationResult = (func, strGameCombination) => {
-      func(player, checkedResult);
-      if (checkedResult.arrSelectedCells.length === maxSelectedCells) 
-        checkedResult.combination = CheckedResult.gameCombination(strGameCombination);
-    };
-    col = Number.parseInt(col);
-    row = Number.parseInt(row);
-    const checkedResult = new CheckedResult();
-    if (col === row) {
-      formatCombinationResult(this.checkLeftDiagonal, 'leftDiagonal');
-    }
-    if (((col === 2) && (row === 0)) || ((col === 0) && (row === 2)) || ((col === 1) && (row === 1))) {
-      formatCombinationResult(this.checkRightDiagonal, 'rightDiagonal');
-    }
 
-
-    if (this.checkColumn(col, player, checkedResult) === maxSelectedCells) return checkedResult;
-    if (this.checkRow(row, player, checkedResult) === maxSelectedCells) return checkedResult;
-    return checkedResult;
-  }
-*/
   checkCombination(col, row, maxSelectedCells, player) {
     col = Number.parseInt(col);
     row = Number.parseInt(row);
