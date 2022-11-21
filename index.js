@@ -51,7 +51,56 @@ class GameCell {
     this._htmlElement.textContent = player.visualSign;
     this._htmlElement.classList.add(player.colorClass);
   }
+}
 
+class CheckedResult {
+  static gameCombination = new Map([['column', 0], ['row', 1], ['leftDiagonal', 2], ['rightDiagonal', 3]]);
+  constructor() {
+    this._arrSelectedCells = [],
+    this._arrUnselectedCells = [],
+    this._combination = null;
+    this._checkResult = false
+  }
+
+  get arrSelectedCells() {
+    return this._arrSelectedCells;
+  }
+
+  addSelectedCell(cell) {
+    this._arrSelectedCells.push(cell);
+  }
+
+  get arrUnelectedCells() {
+    return this._arrUnselectedCells;
+  }
+
+  resetSelectedCells() {
+    this._arrSelectedCells = [];
+  }
+
+  addUnselectedCell(cell) {
+    this._arrUnselectedCells.push(cell);
+  }
+
+  resetUnselectedCells() {
+    this._arrUnselectedCells = [];
+  }
+
+  get combination() {
+    return this._combination;
+  }
+
+  set combination(comb) {
+    this._combination = comb;
+  }
+
+  get checkResult() {
+    return this._checkResult;
+  }
+
+  set checkResult(res) {
+    this._checkResult = res;
+  }
 }
 
 class GamePlace {
@@ -73,6 +122,8 @@ class GamePlace {
     this._activePlayer = (player1.active) ? this._player1 : this._player2;
 
     this.allCellsOperations();
+
+    if (this._activePlayer._type === Player.playerType('Computer')) this.computerPlayerStep();
   }
 
   gamePlaceInit(col, row) {
@@ -89,67 +140,135 @@ class GamePlace {
     }
   }
 
-  checkColumn(col, player) {
-    let sum = 0;
+  checkColumn(col, player, checkedResult) {
+    checkedResult.resetSelectedCells();
+    checkedResult.resetUnselectedCells();    
     for (let row = 0; row < this._gamePlaceSize; row++) {
-      if (this._gameCells[col][row].owner === player) sum++;
+      if (this._gameCells[col][row].owner === player) {
+        checkedResult.addSelectedCell([col, row]);
+      } else {
+        checkedResult.addUnselectedCell([col, row]);
+      }
     }
-    return sum === this._gamePlaceSize;
+    //return sum;
   }
 
-  checkRow(row, player) {
-    let sum = 0;
+  checkRow(row, player, checkedResult) {
+    checkedResult.resetSelectedCells();
+    checkedResult.resetUnselectedCells();    
     for (let col = 0; col < this._gamePlaceSize; col++) {
-      if (this._gameCells[col][row].owner === player) sum++;
+      if (this._gameCells[col][row].owner === player) { 
+        checkedResult.addSelectedCell([col, row]);
+      } else {
+        checkedResult.addUnselectedCell([col, row]);
+      }
     }
-    return sum === this._gamePlaceSize;
+    //return sum;
   }
 
-  checkLeftDiagonal(player) {
-    let sum = 0;
+  checkLeftDiagonal(player, checkedResult) {
+    checkedResult.resetSelectedCells();
+    checkedResult.resetUnselectedCells();    
     for (let i = 0; i < this._gamePlaceSize; i++) {
-      if (this._gameCells[i][i].owner === player) sum++;
+      if (this._gameCells[i][i].owner === player) {
+        checkedResult.addSelectedCell([i, i]);
+      } else {
+        checkedResult.addUnselectedCell([i, i]);
+      }
     }
-    return sum === this._gamePlaceSize;
+    //return sum;
   }
 
-  checkRightDiagonal(player) {
-    let sum = 0;
+  checkRightDiagonal(player, checkedResult) {
+    checkedResult.resetSelectedCells();
+    checkedResult.resetUnselectedCells();    
     let col = 3;
     for (let i = 0; i < this._gamePlaceSize; i++) {
-      if (this._gameCells[--col][i].owner === player) sum++;
+      if (this._gameCells[--col][i].owner === player) {
+        checkedResult.addSelectedCell([col, i]);
+      } else {
+        checkedResult.addUnselectedCell([col, i]);
+      }
     }
-    return sum === this._gamePlaceSize;
+    //return sum;
   }
-
-  checkCombination(col, row, player) {
+/*
+  checkCombination(col, row, maxSelectedCells, player) {
+    const formatCombinationResult = (func, strGameCombination) => {
+      func(player, checkedResult);
+      if (checkedResult.arrSelectedCells.length === maxSelectedCells) 
+        checkedResult.combination = CheckedResult.gameCombination(strGameCombination);
+    };
     col = Number.parseInt(col);
     row = Number.parseInt(row);
+    const checkedResult = new CheckedResult();
     if (col === row) {
-      if (this.checkLeftDiagonal(player)) return true;
+      formatCombinationResult(this.checkLeftDiagonal, 'leftDiagonal');
     }
     if (((col === 2) && (row === 0)) || ((col === 0) && (row === 2)) || ((col === 1) && (row === 1))) {
-      if (this.checkRightDiagonal(player)) return true;
+      formatCombinationResult(this.checkRightDiagonal, 'rightDiagonal');
     }
-    if (this.checkColumn(col, player)) return true;
-    if (this.checkRow(row, player)) return true;
-    return false;
+
+
+    if (this.checkColumn(col, player, checkedResult) === maxSelectedCells) return checkedResult;
+    if (this.checkRow(row, player, checkedResult) === maxSelectedCells) return checkedResult;
+    return checkedResult;
   }
+*/
+  checkCombination(col, row, maxSelectedCells, player) {
+    col = Number.parseInt(col);
+    row = Number.parseInt(row);
+    const checkedResult = new CheckedResult();
+    if (col === row) {
+      this.checkLeftDiagonal(player, checkedResult);
+      if (checkedResult.arrSelectedCells.length === maxSelectedCells){
+        checkedResult.checkResult = true;
+        checkedResult.combination = CheckedResult.gameCombination.get('leftDiagonal');
+        return checkedResult;
+      } 
+    }
+    if (((col === 2) && (row === 0)) || ((col === 0) && (row === 2)) || ((col === 1) && (row === 1))) {
+      this.checkRightDiagonal(player, checkedResult);
+      if (checkedResult.arrSelectedCells.length === maxSelectedCells){
+        checkedResult.checkResult = true;
+        checkedResult.combination = CheckedResult.gameCombination.get('rightDiagonal');
+        return checkedResult;
+      }
+    }
+    this.checkColumn(col, player, checkedResult)
+    if (checkedResult.arrSelectedCells.length === maxSelectedCells){
+      checkedResult.checkResult = true;
+      checkedResult.combination = CheckedResult.gameCombination.get('column');
+      return checkedResult;
+    }
+    this.checkRow(row, player, checkedResult)
+    if (checkedResult.arrSelectedCells.length === maxSelectedCells){
+      checkedResult.checkResult = true;
+      checkedResult.combination = CheckedResult.gameCombination.get('row');
+      return checkedResult;
+    }
+    checkedResult.checkResult = false;
+    checkedResult.combination = null;
+    return checkedResult;
+}
 
   changeActivePlayer() {
     (this._activePlayer === this._player1) ? this._activePlayer = this._player2 : this._activePlayer = this._player1;
-    this._activePlayer
   }
 
   cellClick = (event) => {
-    const target = event.target;
-
-    let [, col, row] = [...target.id.split('-')];
-    
+    let [, col, row] = [...event.target.id.split('-')];
+    this.nextStep(col, row);  
+  }
+  
+  nextStep(col, row) {
     if ((col === undefined) || (!row === undefined) || (this._gameCells[col][row].owner !== Player.playerType('Nobody'))) return;
     this._gameCells[col][row].setSign(this._activePlayer);
-    if (this.checkCombination(col, row, this._activePlayer.sign)) {
+    const checkedResult = this.checkCombination(col, row, this._gamePlaceSize, this._activePlayer.sign);
+    console.dir(checkedResult);
+    if (checkedResult.checkResult) {
       console.log(`${this._activePlayer.name} win!`);
+      alert(`${this._activePlayer.name} win!`);
       this.offGameplaceListener();
       return;
     }
@@ -160,14 +279,50 @@ class GamePlace {
     }
     this.changeActivePlayer();
     this._currentStep++;
-  }
 
-  nextStep() {
-
+    if ((this._activePlayer._type === Player.playerType('Computer')) && (this._currentStep < 3)) this.computerPlayerStep();
   }
 
   offGameplaceListener = () => {
     this._visualGameplaceBlock.removeEventListener('click', this.cellClick);
+  }
+
+  computerPlayerStep() {
+    const cornerCells = [[0, 0], [2, 0], [0, 2], [2, 2]];
+    if (this._currentStep < 3) {
+      if (this.isCellEmpty(1,1)){
+        this.nextStep(1, 1);
+      } else {
+        this.nextStep(...cornerCells[Math.floor(Math.random() * 4)]);
+      }
+    } else if (this._currentStep === 3) {
+      const fullCornerCell = cornerCells.filter(cell => !this.isCellEmpty(...cell));
+      if(this.getGameCell(1 , 1).owner === this._activePlayer.sign) {
+        if(fullCornerCell) {
+          let arr = [];
+          if(fullCornerCell[0]['0'] !== fullCornerCell[0]['1']) {
+            arr = [0, 3];
+          } else {
+            arr = [1, 2];
+          }  
+          this.nextStep(...cornerCells[arr[Math.floor(Math.random() * 2)]]);
+        }
+      }
+    } else {
+      // Check is adversary has two sign in diagonals, rows or columns
+      const adversaryPlayer = (this._activePlayer === this._player1) ? this._player2 : this._player1;
+      //this.ch
+    }
+    console.log('Computer step!')
+    //this.nextStep(col, row);
+  }
+
+  getGameCell(col, row) {
+    return this._gameCells[col][row];
+  }
+
+  isCellEmpty(col, row) {
+    return (this.getGameCell(col, row).owner === 0 ) ? true : false;
   }
 }
 
@@ -179,14 +334,14 @@ const gamePlace = new GamePlace('#gameplace',
     color: 'transparent'
   },
   {
-    type: Player.playerType('Computer'),
+    type: Player.playerType('Human'),
     sign: 'X',
     name: 'Player 1',
     color: 'colorPlayer1',
     active: true
   },
   {
-    type: Player.playerType('Computer'),
+    type: Player.playerType('Human'),
     sign: 'O',
     name: 'Player 2',
     color: 'colorPlayer2'
